@@ -69,12 +69,9 @@ cuda_library(
 )
 
 cuda_library(
-    name = "test_cuda",
-    srcs = [
-        "demo/test_cuda.cu",
-    ],
-    hdrs = [
-    ],
+    name = "my_cuda_lib",
+    srcs = glob(["demo/my_cuda_lib.cu"]),
+    hdrs = glob(["demo/my_cuda_lib.h"]),
     copts = [
         "-Iexternal/cuda_includes",
         "-std=c++17",
@@ -86,4 +83,13 @@ cuda_library(
         "@cuda_includes//:cuda",
     ],
     alwayslink = 1,
+)
+
+# 定义可执行文件
+cc_binary(
+    name = "run_cuda",
+    srcs = ["demo/run_cuda.cu.cc"],
+    deps = [
+        ":my_cuda_lib",
+    ],
 )

@@ -13,14 +13,14 @@ __global__ void vectorAdd(float *A, float *B, float *C, int numElements) {
 __global__ void initializeVectors(float *A, float *B, int numElements) {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     if (i < numElements) {
-        A[i] = static_cast<float>(i);
-        B[i] = static_cast<float>(i * 2);
+        A[i] = static_cast<float>(i + 1);
+        B[i] = static_cast<float>(i + 2);
     }
 }
 
-int main(void) {
-    int numElements = 50000;
-    int threadsPerBlock = 256;
+int my_cuda_function() {
+    int numElements = 10;
+    int threadsPerBlock = 3;
     int numBlocks = (numElements + threadsPerBlock - 1) / threadsPerBlock;
     size_t size = numElements * sizeof(float);
 
@@ -29,9 +29,11 @@ int main(void) {
     float *h_B = (float *)malloc(size);
     float *h_C = (float *)malloc(size);
 
-    // 初始化向量数据
-    initializeVectors<<<numBlocks, threadsPerBlock>>>(h_A, h_B, numElements);
-    cudaDeviceSynchronize();
+    // 初始化主机向量数据
+    for (int i = 0; i < numElements; ++i) {
+        h_A[i] = static_cast<float>(i);
+        h_B[i] = static_cast<float>(i * 10);
+    }
 
     // 分配设备内存
     float *d_A, *d_B, *d_C;
@@ -44,7 +46,6 @@ int main(void) {
     cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);
 
     // 执行向量加法
-
     vectorAdd<<<numBlocks, threadsPerBlock>>>(d_A, d_B, d_C, numElements);
     cudaDeviceSynchronize();
 
