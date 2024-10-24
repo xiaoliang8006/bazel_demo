@@ -1,0 +1,89 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+# 定义一个外部依赖，指向 libcurl
+cc_library(
+    name = "libcurl",
+    hdrs = glob(["external/curl/include/curl/*.h"]),
+    includes = ["external/curl/include"],
+    visibility = ["//visibility:public"],
+    linkopts = ["-lcurl"],  # 添加这一行来指定链接选项
+)
+
+cc_binary(
+    name = "curl_test",
+    srcs = [
+        "demo/curl_test.h",
+        "demo/curl_test.cpp",
+        ],
+    copts = ["-I/usr/include/jsoncpp --std=c++17"],  # 指定头文件路径
+    linkopts = [
+        "-ljsoncpp",
+        "-L/usr/lib64",  # 指定库文件路径
+    ],
+    deps = [
+        ":libcurl",
+    ],
+)
+
+# cc_binary(
+#     name = "send_demo",
+#     srcs = ["demo/send_demo.cpp"],
+#     deps = [
+#         "//thirdparty/tdbus_3.0:tc_api_v3",
+#     ],
+# )
+
+cc_binary(
+    name = "hello_world",
+    srcs = [
+        "demo/hello_world.h",
+        "demo/hello_world.cpp",
+    ],
+    copts = ["--std=c++17"],
+    deps = [
+    ],
+)
+
+
+load("@rules_cuda//cuda:defs.bzl", "cuda_library")
+
+cuda_library(
+    name = "device_embedding_erico",
+    srcs = [
+        "demo/device_embedding_erico.cu.cc",
+    ],
+    hdrs = [
+        "demo/device_embedding_erico.h",
+    ],
+    copts = [
+        "-Iexternal/cuda_includes",
+        "-std=c++17",
+    ],
+    linkopts = [
+        "-lcudart",
+    ],
+    deps = [
+        "@cuda_includes//:cuda",
+    ],
+    alwayslink = 1,
+)
+
+cuda_library(
+    name = "test_cuda",
+    srcs = [
+        "demo/test_cuda.cu",
+    ],
+    hdrs = [
+    ],
+    copts = [
+        "-Iexternal/cuda_includes",
+        "-std=c++17",
+    ],
+    linkopts = [
+        "-lcudart",
+    ],
+    deps = [
+        "@cuda_includes//:cuda",
+    ],
+    alwayslink = 1,
+)
